@@ -22,7 +22,7 @@ export const DeleteModal = (props) => {
     const response = await(api.delete(`books/${bookID}`))
     .then(response => {
       console.log(response.status);
-      if (response.status == 200) {
+      if (response.status === 200) {
         setDeleteBookResponse({ 
           ...deleteBookResponse,  
           success: response.data.success, 
