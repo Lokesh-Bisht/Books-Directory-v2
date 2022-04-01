@@ -10,8 +10,15 @@ export class BooksController {
   // Get all Books
   getAllBooks(req: Request, res: Response) {
     new BooksRepository().fetchAllBooks(req)
-    .then(data => res.status(200).json({ sucess: true, books: data }))
-    .catch(error => res.status(400).json({ error }));
+    .then(data => res.status(200).json({ 
+      sucess: true, 
+      msg: 'Successful in fetcing all the books.',
+      books: data 
+    }))
+    .catch(error => res.status(500).json({
+        success: false,
+        msg: 'Encountered an error while fetching the books.'
+      }));
   }
 
 
@@ -24,10 +31,17 @@ export class BooksController {
       if (data === undefined) {
         res.status(404).json({success: false, msg: `Failed to find book with id: ${id}`});
       } else {
-        res.status(200).json({ success: true, book: data });
+        res.status(200).json({ 
+          success: true, 
+          msg: 'Successful in fetcing the book.',
+          book: data 
+        });
       }
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(500).json({ 
+      success: false,
+      msg: 'Encountered an error while fetching the books.'
+     }));
   }
 
 
@@ -37,13 +51,18 @@ export class BooksController {
 
     // If userID, title, summary or coverImage is null
     if (!title || !description || !coverImage || !userID) {
-      return res.status(400).json({success: false, msg: 
-        'Incomplete info. Failed to add this book.'});
+      return res.status(400).json({
+        success: false, 
+        msg: 'Incomplete info. Failed to add this book.'
+      });
     }  
 
     new BooksRepository().addNewBook(req)
     .then(() => res.status(200).json({ success: true, msg: 'Book added' }))
-    .catch(error => res.status(400).json({ success: false, msg: 'Failed to add book', error: error }));
+    .catch(error => res.status(500).json({ 
+      success: false, 
+      msg: 'Encountered an error while adding this book. Please, try again.' 
+    }));
   }
 
 
@@ -59,14 +78,16 @@ export class BooksController {
 
     new BooksRepository().updateBook(req)
     .then((data: any) => {
-      console.log(data);
       if (data.affected == 0) {
-        res.status(404).json({success: false, msg: `Failed to find book with id: ${req.params.id}`});
+        res.status(404).json({success: false, msg: `Failed to edit book with id: ${req.params.id}`});
       } else {
         res.status(200).json({ success: true, msg: 'Book updated' });
       }
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(500).json({ 
+      sucess: false,
+      msg: 'Encountered an error while editing this book. Please, try again.' 
+    }));
   }
 
   // Delete a book
@@ -75,14 +96,16 @@ export class BooksController {
     
     new BooksRepository().deleteBook(id)
     .then((data: any) => {
-      console.log(data);
       if (data.affected === 0) {
-        res.status(404).json({success: false, msg: `Failed to find book for id: ${id}`});
+        res.status(404).json({success: false, msg: `Failed to delete book for id: ${id}`});
       } else {
         res.status(200).json({ success: true, msg: 'Book deleted' });
       }
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(500).json({ 
+      sucess: false,
+      msg: 'Encountered an error while deleting this book. Please, try again.' 
+     }));
   }
 
   // Get all books for a user with userID
@@ -92,13 +115,21 @@ export class BooksController {
     new BooksRepository().getAllBooksWithUserID(userID)
     .then((data: any) => {
       if (data === undefined) {
-        res.status(404).json({ success: false, msg: `Failed to find 
-        books for user ${userID}` });
+        res.status(404).json({ 
+          success: false, 
+          msg: `Failed to find books for the user: ${userID}` });
       } else {
-        res.status(200).json({ success: true, book: data });
+        res.status(200).json({ 
+          success: true, 
+          msg: 'Successful in fetcing all the books for the user.',
+          book: data 
+        });
       }
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(500).json({ 
+      sucess: false,
+      msg: 'Encountered an error while fetching the books.'
+     }));
   }
 
 
@@ -112,13 +143,21 @@ export class BooksController {
     .then((data: any) => {
 
       if (data === undefined) {
-        res.status(404).json({ success: false, msg: `Failed to find 
-        book ${bookID} for user ${userID}` });
+        res.status(404).json({ 
+          success: false, 
+          msg: `Failed to find book ${bookID} for user ${userID}` });
       } else {
-        res.status(200).json({ success: true, book: data});
+        res.status(200).json({ 
+          success: true, 
+          msg: 'Successful in fetcing the book.',
+          book: data
+        });
       }
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(500).json({ 
+      success: false,
+      msg: 'Encountered an error while fetching the books.'
+     }));
   }
 
 }
