@@ -6,6 +6,7 @@ import cors from "cors";
 import { Books } from "./routes/Books";
 import { Users } from "./routes/Users";
 import bodyParser from "body-parser";
+import swaggerDocs from "./swagger/swagger"
 dotenv.config();
 
 const app = express();
@@ -37,9 +38,10 @@ createConnection().then(async () => {
     const booksRouter = new Books();
     const usersRouter = new Users();
 
+    
     app.use('/api/books', booksRouter.router);
     app.use('/api/users', usersRouter.router);
-    
+    swaggerDocs(app, Number(port));
 
     app.listen(port, () => {
         console.log('Sever running on port 8080');
