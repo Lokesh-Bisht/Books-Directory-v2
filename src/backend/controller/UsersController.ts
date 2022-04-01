@@ -36,10 +36,11 @@ export class UsersController {
 
     const authHeader = req.headers.cookie;
 
-    // console.log(authHeader);
-
     if (authHeader === undefined) {
-      return res.status(403).json({ error: "User is not logged in." })
+      return res.status(401).json({ 
+        sucess: false,
+        msg: "Unauthorized access. Please, check if you are logged in." 
+      })
     }
 
     const cookies: string[] = authHeader?.split(';')
@@ -51,19 +52,23 @@ export class UsersController {
       cookiesMap.set(keyValue[0].replace(/ /g,''), keyValue[1]);
     });
 
-    // console.log(cookiesMap);
 
     const token: string | undefined = cookiesMap.get('Authorization');
-    // console.log("token = " + token);
 
     if (token === undefined) {
-      return res.status(403).json({ error: "Invalid token" });
+      return res.status(401).json({ 
+        sucess: false,
+        msg: "Unauthorized access. Please, check if you are logged in." 
+      });
     }
 
     // Verify the token
     Jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, 
       (error:any, user:any) => {
-        if (error) return res.status(403).json({ error: "Invalid token" });
+        if (error) return res.status(401).json({ 
+          sucess: false,
+          msg: "Unauthorized access. Please, check if you are logged in."
+         });
         return next();
       })
   }
@@ -113,15 +118,15 @@ export class UsersController {
 
     // Check if the user info passed is not empty
     if ((!userInfo.username || !userInfo.password)) {
-    // ((!userInfo.email || !userInfo.password))) {
       return res.status(400).json({ 
+        success: false,
         status: 'Authentication failed',
         msg: "Username and password can't be empty."
       })
     }
 
 
-    const result = await new UsersRepository().findUser(userInfo)
+    await new UsersRepository().findUser(userInfo)
     .then( async (userData: any) => {
       
       // User name is matched
@@ -138,20 +143,23 @@ export class UsersController {
           res.cookie('id', userData.userID);
 
           res.status(200).json({ 
+            success: true,
             status: 'Authentication successful',
             msg: 'Login successful',
-            user: {id: userData.userID, username: userData.username}, 
+            user: userData.username, 
             AccessToken: accessToken
           });
         
         } else {
           res.status(403).json({ 
+            success: false,
             status: 'Authentication failed',
             msg: 'Incorrect username or password.', 
           });
         }
       } else {
         res.status(403).json({ 
+          success: false,
           status: 'Authentication failed',
           msg: 'Incorrect username or password.'
          })
@@ -159,6 +167,7 @@ export class UsersController {
     })
     .catch( error => {
       res.status(500).json({ 
+        success: false,
         status: 'Authentication failed', 
         msg: 'An error has occurred while logging in. Please, try again.'
       })
@@ -171,7 +180,6 @@ export class UsersController {
   private async checkEmail(email: string) : Promise<boolean> {
     const doesEmailExist = await new UsersRepository().checkIfEmailExists(email)
     .then(async (result: any) => {
-      console.log("result = ",result);
       if (result === undefined) {
         return false;
       }
@@ -190,7 +198,6 @@ export class UsersController {
     const doesUsernameExist = await new UsersRepository().
     checkIfUsernameExists(username)
     .then(async (result: any) => {
-      console.log("result = ",result);
       if (result === undefined) {
         return false;
       }
@@ -222,13 +229,12 @@ export class UsersController {
       password: req.body.password
     };
 
-    console.log(userInfo);
 
     if (!userInfo.username || !userInfo.email || !userInfo.password) {
       return res.status(400).json({
         success: 'false',
-        status: 'Registration falied', 
-        msg: "Username, email and password can't be empty",
+        status: 'Registration failed', 
+        msg: "Username, email and password can't be empty.",
       });
     }
 
@@ -238,7 +244,7 @@ export class UsersController {
     if (doesEmailExist) {
       return res.status(400).json({
         success: 'false',
-        status: 'Registration falied', 
+        status: 'Registration failed', 
         msg: "An account with this email address is already registered.",
       });
     }
@@ -261,7 +267,7 @@ export class UsersController {
       const hashedPassword = await bcrypt.hash(userInfo.password, salt);
       userInfo.password = hashedPassword;
     } catch(error) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: 'false',
         status: 'Registration failed',
         msg: 'Failed to register user. Please, try again later.'
@@ -283,12 +289,12 @@ export class UsersController {
         res.cookie('Authorization', accessToken);
         res.cookie('id', userID);
 
-        return res.status(201).json({ 
+        return res.status(200).json({ 
           success: true,
-          status: 'User is registered successfully.',
+          status: 'User Registered.',
           user: userInfo.username, 
-          msg: 'User Registered.', 
-          AccessToken: accessToken 
+          msg: 'User is registered successfully.', 
+          accessToken: accessToken 
         });
       } 
     })
@@ -304,16 +310,20 @@ export class UsersController {
   // Sends back the user details 
   async fetchUserInfo(req: Request, res: Response) {
     const userID: string = req.params.id; 
-    console.log("user id = " + userID);
 
     new UsersRepository().getUserById(userID)
     .then(async(userData: any) => {
-      console.log(userData);
-      res.status(200).json(userData);
+      res.status(200).json({
+        sucess: 'true',
+        msg: 'Successful in fetching user info.',
+        userData
+      });
     })
     .catch((error: any) => {
-      console.log(error);
-      res.status(400).json("Failed to fetch user info.");
+      res.status(500).json({
+        success: 'false',
+        msg: 'Failed to fetch user info.'
+      });
     })
   }
 }
