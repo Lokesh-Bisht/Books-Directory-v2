@@ -56,7 +56,6 @@ export const EditBook = () => {
       Cookies.get('id'));
 
       try {
-        console.log(response);
         if (response.status === 200) {
           const renderedBookInfo = response.data.book;
           setBookInfo(renderedBookInfo);
@@ -72,8 +71,8 @@ export const EditBook = () => {
       } catch (error) {
         setEditBookResponse({ 
           ...editBookResponse, 
-          success: false, 
-          msg: "An error occured while editing the book." 
+          success: response.data.sucess, 
+          msg: response.data.msg 
         });
         
         // Wait for 2 seconds before navigating to the profile page.
@@ -82,7 +81,6 @@ export const EditBook = () => {
     }
 
     fetchData();
-
   }, [])
 
 
@@ -98,28 +96,32 @@ export const EditBook = () => {
 
   // Performs update book request and save the response in the 'editBookResponse' state
   async function updateBook(bookID) {
-    const response = await api.put(`/books/${bookID}`, {
-      title: bookInfo.title,
-      description: bookInfo.description,
-      coverImage: bookInfo.coverImage
-    });
-   
     try {
+      const response = await api.put(`/books/${bookID}`, {
+        title: bookInfo.title,
+        description: bookInfo.description,
+        coverImage: bookInfo.coverImage
+      });
+
       if (response.status === 200 && response.data.success === true) {
         setEditBookResponse({ 
           ...editBookResponse,  
           success: response.data.success, 
-          msg : response.data.msg 
+          msg: response.data.msg 
         });
-        
+    
         // Wait for 2 seconds before navigating to the profile page.
         setTimeout(() => { navigate('/profile') }, 2000);
-      } else if (response.status === 400) {
-        setEditBookResponse({ ...editBookResponse, msg : response.data.msg });
+      } else {
+        setEditBookResponse({ 
+          ...editBookResponse, 
+          success: response.data.sucess, 
+          msg: response.data.msg 
+        });
         setTimeout(() => { navigate('/profile') }, 2000);
       }
     } catch(error) {
-      setEditBookResponse({ ...editBookResponse, msg : error.response.data.msg });
+      setEditBookResponse({ ...editBookResponse, msg: "An error occured while editing this book." });
       setTimeout(() => { navigate('/profile') }, 2000);
     }
   }
