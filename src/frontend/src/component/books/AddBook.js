@@ -49,22 +49,19 @@ export const AddBook = () => {
 
       if (response.status === 200 && response.data.success === true) {
         // redirect the user to the profile page.
-        console.log(response);
-        console.log(response.data);
-        console.log(response.data.msg);
         setAddBookResponse({ 
           ...addBookResponse,  
           success: response.data.success, 
-          msg : response.data.msg 
+          msg: response.data.msg 
         });
         
         // Wait for 2 seconds before navigating to the profile page.
         setTimeout(() => { navigate('/profile') }, 2000);
-      } else if (response.status === 400) {
-        setAddBookResponse({ ...addBookResponse, msg : response.data.msg });
+      } else {
+        setAddBookResponse({ ...addBookResponse, success: response.data.success, msg: response.data.msg });
       }
     } catch(error) {
-      setAddBookResponse({ ...addBookResponse, msg : error.response.data.msg });
+      setAddBookResponse({ ...addBookResponse, msg: "An error occured while adding this book." });
     }
   }
 
