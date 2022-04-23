@@ -37,8 +37,7 @@ const Avatar = (props) => {
       const response = await api.get(`/users/${Cookies.get('id')}`, Cookies.get('id'));
 
       try {
-        console.log(response.data);
-        const renderedUserInfo = response.data
+        const renderedUserInfo = response.data.userData
         setUser(renderedUserInfo);
       } catch(error) {
         console.log("Failed to fetch user info");
