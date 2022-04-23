@@ -127,7 +127,7 @@ export class BooksController {
       }
     })
     .catch(error => res.status(500).json({ 
-      sucess: false,
+      success: false,
       msg: 'Encountered an error while fetching the books.'
      }));
   }
